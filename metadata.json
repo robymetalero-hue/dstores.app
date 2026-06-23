@@ -1,0 +1,6 @@
+{
+  "name": "CatalogoPro",
+  "description": "Gestión de Catálogo de Productos e Inventarios segura e interactiva con autenticación de Google y persistencia con Firestore en tiempo real.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

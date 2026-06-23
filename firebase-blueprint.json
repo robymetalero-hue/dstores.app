@@ -1,0 +1,69 @@
+{
+  "entities": {
+    "product": {
+      "title": "Product",
+      "description": "An inventory item in the catalog",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Product name"
+        },
+        "description": {
+          "type": "string",
+          "description": "Product description"
+        },
+        "price": {
+          "type": "number",
+          "description": "Product price"
+        },
+        "stock": {
+          "type": "number",
+          "description": "Stock count"
+        },
+        "category": {
+          "type": "string",
+          "description": "Product category"
+        },
+        "imageUrl": {
+          "type": "string",
+          "description": "Optional image URL"
+        },
+        "createdBy": {
+          "type": "string",
+          "description": "UID of the creator"
+        },
+        "creatorEmail": {
+          "type": "string",
+          "description": "Email of the creator"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Creation timestamp"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Last modified timestamp"
+        }
+      },
+      "required": [
+        "name",
+        "price",
+        "stock",
+        "category",
+        "createdBy",
+        "creatorEmail",
+        "createdAt",
+        "updatedAt"
+      ]
+    }
+  },
+  "firestore": {
+    "products/{productId}": {
+      "schema": "product",
+      "description": "Global collection of products"
+    }
+  }
+}

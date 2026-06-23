@@ -1,0 +1,81 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Global Safety Net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Products Rules Block
+    match /products/{productId} {
+      // Public view of catalog
+      allow read: if true;
+
+      // Creation
+      allow create: if isSignedIn()
+        && isValidId(productId)
+        && isValidProduct(incoming())
+        && incoming().createdBy == request.auth.uid
+        && (request.auth.token.email_verified == true || request.auth.token.email == 'robymetalero@gmail.com')
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time;
+
+      // Update
+      allow update: if isSignedIn()
+        && isValidId(productId)
+        && isValidProduct(incoming())
+        && (request.auth.token.email_verified == true || request.auth.token.email == 'robymetalero@gmail.com')
+        && (
+          isAdmin() ||
+          (
+            existing().createdBy == request.auth.uid
+            && incoming().createdBy == existing().createdBy
+            && incoming().createdAt == existing().createdAt
+            && incoming().updatedAt == request.time
+          )
+        );
+
+      // Deletion
+      allow delete: if isSignedIn()
+        && isValidId(productId)
+        && (
+          isAdmin() ||
+          existing().createdBy == request.auth.uid
+        );
+    }
+  }
+}
+
+function isValidId(id) {
+  return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+}
+
+function incoming() {
+  return request.resource.data;
+}
+
+function existing() {
+  return resource.data;
+}
+
+function isSignedIn() {
+  return request.auth != null;
+}
+
+function isAdmin() {
+  return isSignedIn() && request.auth.token.email == 'robymetalero@gmail.com';
+}
+
+function isValidProduct(data) {
+  return data.keys().hasAll(['name', 'price', 'stock', 'category', 'createdBy', 'creatorEmail', 'createdAt', 'updatedAt'])
+    && data.keys().size() <= 10
+    && data.name is string && data.name.size() > 0 && data.name.size() <= 150
+    && data.price is number && data.price >= 0
+    && data.stock is number && data.stock >= 0
+    && data.category is string && data.category.size() > 0 && data.category.size() <= 100
+    && (!data.keys().hasAny(['imageUrl']) || (data.imageUrl is string && data.imageUrl.size() <= 2048))
+    && data.createdBy is string && data.createdBy.size() <= 128
+    && data.creatorEmail is string && data.creatorEmail.size() <= 256
+    && data.createdAt is timestamp
+    && data.updatedAt is timestamp;
+}
